@@ -23,11 +23,21 @@ def main():
     # Input field for RSS feed URL
     feed_url = st.text_input("Enter the RSS feed URL", 'http://feeds.bbci.co.uk/news/rss.xml')
 
-    if st.button("Scrape News"):
+    # Container for buttons
+    button_container = st.empty()
+    col1, col2 = button_container.columns([1, 1])
+    
+    # Placeholder for download button, initially empty
+    download_button = col2.empty()
+    
+    # Scrape News button
+    scrape_button = col1.button("Scrape News")
+    
+    if scrape_button:
         with st.spinner("Scraping articles..."):
             articles = scrape_news_from_feed(feed_url)
             st.success("Scraping completed!")
-
+            
             # Display articles
             for article in articles:
                 st.subheader(article['title'])
@@ -36,11 +46,13 @@ def main():
                 st.write(f"**Summary:** {article['summary']}")
                 st.write(f"[Read more]({article['link']})")
                 st.write("---")
-
+            
             # Save articles to CSV
             df = pd.DataFrame(articles)
             csv = df.to_csv(index=False).encode('utf-8')
-            st.download_button(
+            
+            # Activate download button
+            download_button.download_button(
                 label="Download data as CSV",
                 data=csv,
                 file_name='news_articles.csv',
